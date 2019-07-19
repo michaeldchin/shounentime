@@ -14,17 +14,18 @@ c.execute('''CREATE TABLE IF NOT EXISTS people
 
 
 def people_top():
-    _top = c.execute('''SELECT name, count 
-                       FROM people ORDER BY count desc''')
-
-    return [row.person_name + ': ' + row.shounen_count for row in _top]
-
+    return c.execute('''SELECT person_name, count 
+                       FROM people ORDER BY count desc''').fetchall()
 
 def people_increment(_id, name):
-    if c.execute('SELECT count(*) FROM people where id = ?', [_id]):
-        c.execute('INSERT INTO people VALUES (?,?)', (_id, name))
+
+    if c.execute('SELECT count(*) FROM people where id = ?', (_id,)).fetchone() == 0:
+        print('adding' + str((_id, name)))
+        c.execute('INSERT INTO people (id, person_name, count) VALUES (?,?,?)', (_id, name, 1))
     else:
-        c.execute('UPDATE people SET count = count + 1 where id = ?', [name])
+        print('incrementing' + str((_id, name)))
+        c.execute('UPDATE people SET count = count + 1 where id = ?', (_id,))
+    conn.commit()
 
 #
 # Bot commands
@@ -47,13 +48,13 @@ async def top(ctx):
     _top = people_top()
     e = discord.Embed(color=0x770077, title=':trophy: Shounen Time Leaderboard')
     e.set_thumbnail(url='https://cdn.discordapp.com/emojis/576627772949266435.png')
-    e.add_field(name='these guys', value=str(_top))
+    e.add_field(name='Top Shounen Times', value=str(_top))
     await ctx.send(embed=e)
 
 
 @bot.command()
 async def time(ctx):
-    people_increment(ctx)
+    people_increment(ctx.author._user.id, ctx.author.name + '#' + ctx.author.discriminator)
     e = discord.Embed(color=0x777777)
     e.set_image(url='https://cdn.discordapp.com/attachments/572464049179328532/572639933139779594/Shounen_Time.png')
     await ctx.send(embed=e)
