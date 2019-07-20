@@ -42,7 +42,10 @@ def people_increment(user_id, name):
 #
 # Bot commands
 #
-bot = commands.Bot(command_prefix='shounen ', case_insensitive=True)
+
+
+prefixes = ['shounen ', 'Shounen ', '!s']
+bot = commands.Bot(command_prefix=prefixes)
 
 
 @bot.event
