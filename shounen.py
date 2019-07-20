@@ -1,4 +1,7 @@
-import discord, os, sqlite3
+import discord
+import os
+import sqlite3
+from randomimages.images import random_quote, random_img
 from discord.ext import commands
 
 #
@@ -14,17 +17,26 @@ c.execute('''CREATE TABLE IF NOT EXISTS people
 
 
 def people_top():
-    return c.execute('''SELECT person_name, count 
-                       FROM people ORDER BY count desc''').fetchall()
+    results = list(c.execute('''SELECT person_name, count 
+                       FROM people ORDER BY count desc'''))
+    count = 1
+    output = ''
+    for row in results:
+        row_string = f'{count}. **{row[0]}** - {row[1]}\n'
+        count = count + 1
+        output = output + row_string
 
-def people_increment(_id, name):
+    return output
 
-    if c.execute('SELECT count(*) FROM people where id = ?', (_id,)).fetchone() == 0:
-        print('adding' + str((_id, name)))
-        c.execute('INSERT INTO people (id, person_name, count) VALUES (?,?,?)', (_id, name, 1))
+
+def people_increment(user_id, name):
+    exists = c.execute('SELECT count(*) FROM people where id = ?', (user_id,)).fetchone()
+    if exists[0] == 0:
+        print('adding' + str((user_id, name)))
+        c.execute('INSERT INTO people (id, person_name, count) VALUES (?,?,?)', (user_id, name, 1))
     else:
-        print('incrementing' + str((_id, name)))
-        c.execute('UPDATE people SET count = count + 1 where id = ?', (_id,))
+        print('incrementing' + str((user_id, name)))
+        c.execute('UPDATE people SET count = count + 1 where id = ?', (user_id,))
     conn.commit()
 
 #
@@ -40,7 +52,10 @@ async def on_ready():
 
 @bot.command()
 async def image(ctx):
-    await ctx.send('pong')
+    e = discord.Embed(color=0x777777, description=random_quote())
+    url = random_img()
+    e.set_image(url=url[0])
+    await ctx.send(embed=e)
 
 
 @bot.command()
@@ -54,9 +69,13 @@ async def top(ctx):
 
 @bot.command()
 async def time(ctx):
-    people_increment(ctx.author._user.id, ctx.author.name + '#' + ctx.author.discriminator)
+    user_id = ctx.author.id
+    user_name = ctx.author.name
+    user_discrm = ctx.author.discriminator
+    people_increment(user_id, user_name + '#' + user_discrm)
     e = discord.Embed(color=0x777777)
     e.set_image(url='https://cdn.discordapp.com/attachments/572464049179328532/572639933139779594/Shounen_Time.png')
     await ctx.send(embed=e)
 
 bot.run(os.environ['BOT_TOKEN'])
+
