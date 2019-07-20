@@ -64,7 +64,9 @@ async def image(ctx):
 @bot.command()
 async def top(ctx):
     _top = people_top()
-    e = discord.Embed(color=0x770077, title=':trophy: Shounen Time Leaderboard')
+    e = discord.Embed(color=0x770077,
+                      title=':trophy: Shounen Time Leaderboard',
+                      description='These stats are **not** permanent and might be deleted')
     e.set_thumbnail(url='https://cdn.discordapp.com/emojis/576627772949266435.png')
     e.add_field(name='Top Shounen Times', value=str(_top))
     await ctx.send(embed=e)
