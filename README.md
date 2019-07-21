@@ -10,4 +10,7 @@ Shows how much time you have shounen
 
 ```shounen image``` - fun stuff
 
-```shounen save``` - ADMIN ONLY - save DB
+####Admin commands
+```shounen save``` -  save DB
+
+```shounen load``` -  load DB

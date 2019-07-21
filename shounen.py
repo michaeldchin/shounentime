@@ -10,19 +10,22 @@ from discord.ext import commands
 #
 # DB
 #
+# Load and connect to DB
 s3_db_location = os.environ['S3_DB_FILE']
 loadfile(s3_db_location)
-thread = threading.Thread(target=autosave, args=(s3_db_location, 3600))
-thread.start()
-
-
 conn = sqlite3.connect('people.db')
+
+# Setup tables
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS people
              (id TEXT, 
              person_name TEXT, 
              count INTEGER DEFAULT 0, 
              time TEXT)''')
+
+# Setup autosave
+thread = threading.Thread(target=autosave, args=(s3_db_location, 3600))
+thread.start()
 
 
 def people_top():
@@ -95,7 +98,6 @@ async def time(ctx):
 # ADMIN COMMANDS
 #
 
-
 @bot.command()
 async def save(ctx):
     if ctx.author.id == 143423784555118592:
@@ -104,6 +106,16 @@ async def save(ctx):
         savefile(s3_db_location, f)
         f.close()
         await ctx.send('Save complete.')
+    else:
+        await ctx.send('You are not authorized to use this command.')
+
+
+@bot.command()
+async def load(ctx):
+    if ctx.author.id == 143423784555118592:
+        await ctx.send('Loading DB')
+        loadfile(s3_db_location)
+        await ctx.send('Load complete.')
     else:
         await ctx.send('You are not authorized to use this command.')
 
