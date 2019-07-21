@@ -1,12 +1,21 @@
 import discord
 import os
 import sqlite3
+import threading
 from randomimages.images import random_quote, random_img
+from bot.save import savefile, loadfile, autosave
 from discord.ext import commands
+
 
 #
 # DB
 #
+s3_db_location = os.environ['S3_DB_FILE']
+loadfile(s3_db_location)
+thread = threading.Thread(target=autosave, args=(s3_db_location, 3600))
+thread.start()
+
+
 conn = sqlite3.connect('people.db')
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS people
@@ -81,6 +90,22 @@ async def time(ctx):
     e = discord.Embed(color=0x777777)
     e.set_image(url='https://cdn.discordapp.com/attachments/572464049179328532/572639933139779594/Shounen_Time.png')
     await ctx.send(embed=e)
+
+#
+# ADMIN COMMANDS
+#
+
+
+@bot.command()
+async def save(ctx):
+    if ctx.author.id == 143423784555118592:
+        await ctx.send('Saving DB')
+        f = open('people.db', 'rb')
+        savefile(s3_db_location, f)
+        f.close()
+        await ctx.send('Save complete.')
+    else:
+        await ctx.send('You are not authorized to use this command.')
 
 bot.run(os.environ['BOT_TOKEN'])
 

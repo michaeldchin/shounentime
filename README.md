@@ -9,3 +9,5 @@ Initiates shounen time
 Shows how much time you have shounen
 
 ```shounen image``` - fun stuff
+
+```shounen save``` - ADMIN ONLY - save DB
