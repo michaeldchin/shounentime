@@ -67,6 +67,10 @@ async def on_ready():
 
 @bot.command()
 async def image(ctx):
+    user_id = ctx.author.id
+    user_name = ctx.author.name
+    user_discrm = ctx.author.discriminator
+    people_increment(user_id, user_name + '#' + user_discrm)
     e = discord.Embed(color=0x777777, description=random_quote())
     url = random_img()
     e.set_image(url=url[0])
