@@ -10,19 +10,22 @@ from discord.ext import commands
 #
 # DB
 #
+# Load and connect to DB
 s3_db_location = os.environ['S3_DB_FILE']
 loadfile(s3_db_location)
-thread = threading.Thread(target=autosave, args=(s3_db_location, 3600))
-thread.start()
-
-
 conn = sqlite3.connect('people.db')
+
+# Setup tables
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS people
              (id TEXT, 
              person_name TEXT, 
              count INTEGER DEFAULT 0, 
              time TEXT)''')
+
+# Setup autosave
+thread = threading.Thread(target=autosave, args=(s3_db_location, 3600))
+thread.start()
 
 
 def people_top():
@@ -64,6 +67,10 @@ async def on_ready():
 
 @bot.command()
 async def image(ctx):
+    user_id = ctx.author.id
+    user_name = ctx.author.name
+    user_discrm = ctx.author.discriminator
+    people_increment(user_id, user_name + '#' + user_discrm)
     e = discord.Embed(color=0x777777, description=random_quote())
     url = random_img()
     e.set_image(url=url[0])
@@ -74,8 +81,7 @@ async def image(ctx):
 async def top(ctx):
     _top = people_top()
     e = discord.Embed(color=0x770077,
-                      title=':trophy: Shounen Time Leaderboard',
-                      description='These stats are **not** permanent and might be deleted')
+                      title=':trophy: Shounen Time Leaderboard')
     e.set_thumbnail(url='https://cdn.discordapp.com/emojis/576627772949266435.png')
     e.add_field(name='Top Shounen Times', value=str(_top))
     await ctx.send(embed=e)
@@ -104,6 +110,16 @@ async def save(ctx):
         savefile(s3_db_location, f)
         f.close()
         await ctx.send('Save complete.')
+    else:
+        await ctx.send('You are not authorized to use this command.')
+
+
+@bot.command()
+async def load(ctx):
+    if ctx.author.id == 143423784555118592:
+        await ctx.send('Loading DB')
+        loadfile(s3_db_location)
+        await ctx.send('Load complete.')
     else:
         await ctx.send('You are not authorized to use this command.')
 
