@@ -1,12 +1,8 @@
 import discord
 import os
 from randomimages.images import random_quote, random_img
-from bot.save import savefile, loadfile, people_increment, people_top
+from bot.save import people_increment, people_top
 from discord.ext import commands
-
-#
-# Bot commands
-#
 
 
 prefixes = ['shounen ', 'Shounen ', '!s']
@@ -20,10 +16,7 @@ async def on_ready():
 
 @bot.command()
 async def image(ctx):
-    user_id = ctx.author.id
-    user_name = ctx.author.name
-    user_discrm = ctx.author.discriminator
-    people_increment(user_id, user_name + '#' + user_discrm)
+    people_increment(ctx.author)
     e = discord.Embed(color=0x777777, description=random_quote())
     url = random_img()
     e.set_image(url=url[0])
@@ -42,40 +35,14 @@ async def top(ctx):
 
 @bot.command()
 async def time(ctx):
-    user_id = ctx.author.id
-    user_name = ctx.author.name
-    user_discrm = ctx.author.discriminator
-    people_increment(user_id, user_name + '#' + user_discrm)
+    people_increment(ctx.author)
     e = discord.Embed(color=0x777777)
     e.set_image(url='https://cdn.discordapp.com/attachments/572464049179328532/572639933139779594/Shounen_Time.png')
     await ctx.send(embed=e)
 
-#
-# ADMIN COMMANDS
-#
-
-
 @bot.command()
-async def save(ctx):
-    await ctx.send('This command is kinda dumb and commented out')
-    # if ctx.author.id == 143423784555118592:
-    #     await ctx.send('Saving DB')
-    #     f = open('people.db', 'rb')
-    #     savefile(s3_db_location, f)
-    #     f.close()
-    #     await ctx.send('Save complete.')
-    # else:
-    #     await ctx.send('You are not authorized to use this command.')
-
-
-@bot.command()
-async def load(ctx):
-    if ctx.author.id == 143423784555118592:
-        await ctx.send('Loading DB')
-        loadfile()
-        await ctx.send('Load complete.')
-    else:
-        await ctx.send('You are not authorized to use this command.')
+async def remind(ctx):
+    await ctx.send('wip')
 
 bot.run(os.environ['BOT_TOKEN'])
 

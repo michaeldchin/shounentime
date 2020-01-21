@@ -73,7 +73,13 @@ def people_top():
     return output
 
 
-def people_increment(user_id, name):
+def people_increment(author):
+    user_id = author.id
+    user_name = author.name + '#' + author.discriminator
+    _people_increment(user_id, user_name)
+
+
+def _people_increment(user_id, name):
     exists = c.execute('SELECT count(*) FROM people where id = ?', (user_id,)).fetchone()
     if exists[0] == 0:
         print('adding' + str((user_id, name)))
