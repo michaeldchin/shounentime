@@ -1,5 +1,5 @@
 
-from bot.save import loadfile, setup_autosave
+from botmain.save import loadfile, setup_autosave
 import sqlite3
 
 loadfile()
