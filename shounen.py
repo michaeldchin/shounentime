@@ -1,7 +1,7 @@
 import discord
 import os
 from randomimages.images import random_quote, random_img
-from bot.save import people_increment, people_top
+from bot.dbsetup import people_increment, people_top
 from discord.ext import commands
 
 
