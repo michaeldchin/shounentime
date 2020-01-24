@@ -5,11 +5,15 @@ from discord.ext import commands
 
 
 prefixes = ['shounen ', 'Shounen ', '!s']
+if os.environ['DEV']:
+    prefixes = ['dev ']
 bot = commands.Bot(command_prefix=prefixes)
 
 
 @bot.event
 async def on_ready():
+    # c = bot.get_channel(600919318359703552)
+    # await c.send('extra testing <@143423784555118592>')
     print('We have logged in as {0.user}'.format(bot))
 
 
@@ -35,4 +39,3 @@ async def remind(ctx):
     await ctx.send('wip')
 
 bot.run(os.environ['BOT_TOKEN'])
-

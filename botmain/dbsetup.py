@@ -1,18 +1,32 @@
 
-from botmain.save import loadfile, setup_autosave
 import sqlite3
 
-loadfile()
 conn = sqlite3.connect('people.db')
-setup_autosave()
 
 # Setup tables
 c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS people
-             (id TEXT, 
-             person_name TEXT, 
-             count INTEGER DEFAULT 0, 
-             time TEXT)''')
+
+peopleSql = '''
+CREATE TABLE IF NOT EXISTS 
+people (
+    id TEXT, 
+    person_name TEXT, 
+    COUNT INTEGER DEFAULT 0, 
+    time TEXT
+)
+'''
+remindersSql = '''
+CREATE TABLE IF NOT EXISTS 
+reminders (
+    discord_id TEXT, 
+    reminder_time TIMESTAMP, 
+    status TEXT DEFAULT 'pending', 
+    channel TEXT,
+    reminder_message TEXT
+)
+'''
+c.execute(peopleSql)
+c.execute(remindersSql)
 
 
 def people_top():
@@ -42,4 +56,16 @@ def _people_increment(user_id, name):
     else:
         print('incrementing' + str((user_id, name)))
         c.execute('UPDATE people SET count = count + 1 where id = ?', (user_id,))
+    conn.commit()
+
+
+def _add_reminder(user_id, time, channel_id, reminder_message):
+    sql = '''
+        INSERT INTO reminder (
+            discord_id
+            reminder_time
+            channel
+            reminder_message) VALUES (?,?,?,?)'''
+
+    c.execute(sql, (user_id, time, channel_id, reminder_message))
     conn.commit()
