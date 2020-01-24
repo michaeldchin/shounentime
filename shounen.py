@@ -1,10 +1,10 @@
 import os
 from botmain.embeds import get_image_embed, get_top_embed, get_time_embed
-from botmain.dbsetup import people_increment
+from botmain.dbsetup import people_increment, add_reminder
 from discord.ext import commands
 
 
-prefixes = ['shounen ', 'Shounen ', '!s']
+prefixes = ['shounen ', 'Shounen ']
 if os.environ['DEV']:
     prefixes = ['dev ']
 bot = commands.Bot(command_prefix=prefixes)
@@ -12,8 +12,10 @@ bot = commands.Bot(command_prefix=prefixes)
 
 @bot.event
 async def on_ready():
-    # c = bot.get_channel(600919318359703552)
-    # await c.send('extra testing <@143423784555118592>')
+    c = bot.get_channel(600919318359703552)
+    # await c.send('extra testing <@143423784555118592> This is a full block: @\u200beveryone')
+    # await c.send('extra testing @ everyone @ here')
+    # await c.send('extra testing @everyone @here')
     print('We have logged in as {0.user}'.format(bot))
 
 
@@ -36,6 +38,7 @@ async def time(ctx):
 
 @bot.command()
 async def remind(ctx):
-    await ctx.send('wip')
+    content = add_reminder(ctx)
+    await ctx.send('wip: ' + content)
 
 bot.run(os.environ['BOT_TOKEN'])

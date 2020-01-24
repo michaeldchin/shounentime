@@ -1,6 +1,7 @@
 
 import sqlite3
-
+import re
+from botmain.utils import clean_everyhere
 conn = sqlite3.connect('people.db')
 
 # Setup tables
@@ -26,7 +27,11 @@ reminders (
 )
 '''
 c.execute(peopleSql)
+# c.execute('DROP TABLE reminders')
 c.execute(remindersSql)
+# res = c.execute("select * from reminders")
+# res
+conn.commit()
 
 
 def people_top():
@@ -59,13 +64,34 @@ def _people_increment(user_id, name):
     conn.commit()
 
 
+def add_reminder(ctx):
+    m = reminder_parse(ctx)
+    return m
+
+
+def reminder_parse(ctx):
+    content = ctx.message.content
+    reminder = re.split(r'^.*?remind (.*$)', content)[1]
+
+    user_id = ctx.author.id
+    time = 0
+
+    _add_reminder(user_id,
+                  time,
+                  ctx.channel.id,
+                  clean_everyhere(reminder))
+    reminder_syntax_tip = 'Syntax: "remind (me|@user) (some reminder) (in|at) (time)"'
+    response = 'Reminder set.' if True else reminder_syntax_tip
+    return response
+
+
 def _add_reminder(user_id, time, channel_id, reminder_message):
     sql = '''
-        INSERT INTO reminder (
-            discord_id
-            reminder_time
-            channel
-            reminder_message) VALUES (?,?,?,?)'''
+        INSERT INTO reminders (
+            discord_id,
+            reminder_time,
+            channel,
+            reminder_message) VALUES (?,datetime(?),?,?)'''
 
     c.execute(sql, (user_id, time, channel_id, reminder_message))
     conn.commit()
