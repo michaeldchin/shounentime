@@ -79,7 +79,7 @@ def reminder_parse(ctx):
         timestring = captured[2]
         date = _get_reminder_date(timestring)
         if date.timestamp() < time.time():
-            return f"You're too late. Provided time {date.strftime('%m/%d/%Y, %H:%M:%S')} has already passed."
+            return f"You're too late. Provided time {date.strftime('%m/%d/%Y, %I:%M%p %Z')} has already passed."
         else:
             timestamp = date.timestamp()
             user_id = ctx.author.id
@@ -89,7 +89,7 @@ def reminder_parse(ctx):
                           ctx.channel.id,
                           clean_reminder)
 
-            response = f"You will be reminded '{clean_reminder}' at {date.strftime('%m/%d/%Y, %I:%M%p')}"
+            response = f"You will be reminded '{clean_reminder}' at {date.strftime('%m/%d/%Y, %I:%M%p %Z')}"
             return response
     else:
         reminder_syntax_tip = '''
@@ -104,10 +104,10 @@ def _is_utc(date):
 
 
 def _get_reminder_date(timestring):
-    date = dateparser.parse(timestring, settings={'RETURN_AS_TIMEZONE_AWARE': True})
+    date = dateparser.parse(timestring, settings={'TIMEZONE': 'CST', 'RETURN_AS_TIMEZONE_AWARE': True})
     # set timezone to CST by default unless explicitly stated to be UTC
-    if 'UTC' not in timestring.upper() and _is_utc(date):
-        date = date.astimezone(pytz.timezone('US/Central').dst())
+    # if 'UTC' not in timestring.upper() and _is_utc(date):
+    #     date = pytz.timezone('US/Central').localize(date).dst()
     return date
 
 
