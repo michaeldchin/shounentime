@@ -10,4 +10,9 @@ Shows how much time you have shounen
 
 ```shounen image``` - fun stuff
 
-```shounen reminder``` - WIP reminders
+```shounen reminder``` - Syntax: "shounen reminder (some reminder) (in|at) (time)"
+
+### Deployment
+
+sudo systemctl start shounentime.service
+sudo systemctl restart shounentime.service

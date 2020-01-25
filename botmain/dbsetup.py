@@ -21,18 +21,18 @@ people (
 remindersSql = '''
 CREATE TABLE IF NOT EXISTS 
 reminders (
-    discord_id TEXT, 
+    discord_id INTEGER, 
     reminder_time INTEGER, 
     status TEXT DEFAULT 'pending', 
-    channel TEXT,
+    channel INTEGER,
     reminder_message TEXT
 )
 '''
 c.execute(peopleSql)
 # c.execute('DROP TABLE reminders')
 c.execute(remindersSql)
-res = c.execute("select * from reminders")
-res
+# res = c.execute("select * from reminders")
+# res
 conn.commit()
 
 
@@ -89,10 +89,13 @@ def reminder_parse(ctx):
                           ctx.channel.id,
                           clean_reminder)
 
-            response = f"You will be reminded {clean_reminder} at {date.strftime('%m/%d/%Y, %H:%M:%S')}"
+            response = f"You will be reminded '{clean_reminder}' at {date.strftime('%m/%d/%Y, %I:%M%p')}"
             return response
     else:
-        reminder_syntax_tip = 'Syntax: "reminder (some reminder) (in|at) (time)"'
+        reminder_syntax_tip = '''
+        **Failed to set reminder.**
+        Syntax: "reminder (some reminder) (in|at) (time)"
+        '''
         return reminder_syntax_tip
 
 
@@ -104,7 +107,7 @@ def _get_reminder_date(timestring):
     date = dateparser.parse(timestring, settings={'RETURN_AS_TIMEZONE_AWARE': True})
     # set timezone to CST by default unless explicitly stated to be UTC
     if 'UTC' not in timestring.upper() and _is_utc(date):
-        date = date.astimezone(pytz.timezone('US/Central'))
+        date = date.astimezone(pytz.timezone('US/Central').dst())
     return date
 
 
@@ -118,3 +121,25 @@ def _add_reminder(user_id, time, channel_id, reminder_message):
 
     c.execute(sql, (user_id, time, channel_id, reminder_message))
     conn.commit()
+
+
+def query_reminders():
+    sql = '''
+        SELECT
+            discord_id,   
+            channel,  
+            reminder_message
+        FROM reminders 
+        WHERE status = 'pending' AND reminder_time < ?
+        '''
+    current_time = time.time()
+    res = c.execute(sql, (current_time,)).fetchall()
+
+    sql2 = '''
+        DELETE FROM reminders 
+        WHERE status = 'pending' AND reminder_time < ?
+    '''
+    c.execute(sql2, (current_time,))
+
+    conn.commit()
+    return res
