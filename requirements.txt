@@ -1,2 +1,4 @@
 discord.py
 boto3
+dateparser
+pytz

@@ -10,4 +10,4 @@ Shows how much time you have shounen
 
 ```shounen image``` - fun stuff
 
-```shounen remind``` - WIP reminders
+```shounen reminder``` - WIP reminders

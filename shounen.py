@@ -1,5 +1,5 @@
 import os
-from botmain.embeds import get_image_embed, get_top_embed, get_time_embed
+from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_reminder_embed
 from botmain.dbsetup import people_increment, add_reminder
 from discord.ext import commands
 
@@ -37,8 +37,8 @@ async def time(ctx):
 
 
 @bot.command()
-async def remind(ctx):
+async def reminder(ctx):
     content = add_reminder(ctx)
-    await ctx.send('wip: ' + content)
+    await ctx.send(embed=get_reminder_embed(content))
 
 bot.run(os.environ['BOT_TOKEN'])

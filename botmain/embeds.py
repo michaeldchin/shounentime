@@ -23,3 +23,9 @@ def get_time_embed():
     e = discord.Embed(color=0x777777)
     e.set_image(url='https://cdn.discordapp.com/attachments/572464049179328532/572639933139779594/Shounen_Time.png')
     return e
+
+
+def get_reminder_embed(content):
+    e = discord.Embed(color=0x007777)
+    e.description = content
+    return e

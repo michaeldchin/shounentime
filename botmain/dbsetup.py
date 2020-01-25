@@ -1,6 +1,8 @@
-
 import sqlite3
 import re
+import time
+import pytz
+import dateparser
 from botmain.utils import clean_everyhere
 conn = sqlite3.connect('people.db')
 
@@ -20,7 +22,7 @@ remindersSql = '''
 CREATE TABLE IF NOT EXISTS 
 reminders (
     discord_id TEXT, 
-    reminder_time TIMESTAMP, 
+    reminder_time INTEGER, 
     status TEXT DEFAULT 'pending', 
     channel TEXT,
     reminder_message TEXT
@@ -29,8 +31,8 @@ reminders (
 c.execute(peopleSql)
 # c.execute('DROP TABLE reminders')
 c.execute(remindersSql)
-# res = c.execute("select * from reminders")
-# res
+res = c.execute("select * from reminders")
+res
 conn.commit()
 
 
@@ -71,18 +73,39 @@ def add_reminder(ctx):
 
 def reminder_parse(ctx):
     content = ctx.message.content
-    reminder = re.split(r'^.*?remind (.*$)', content)[1]
+    captured = re.split(r'^.*?reminder (.*) (at .*$|in .*$)', content)
+    if len(captured) > 2:
+        reminder = captured[1]
+        timestring = captured[2]
+        date = _get_reminder_date(timestring)
+        if date.timestamp() < time.time():
+            return f"You're too late. Provided time {date.strftime('%m/%d/%Y, %H:%M:%S')} has already passed."
+        else:
+            timestamp = date.timestamp()
+            user_id = ctx.author.id
+            clean_reminder = clean_everyhere(reminder)
+            _add_reminder(user_id,
+                          timestamp,
+                          ctx.channel.id,
+                          clean_reminder)
 
-    user_id = ctx.author.id
-    time = 0
+            response = f"You will be reminded {clean_reminder} at {date.strftime('%m/%d/%Y, %H:%M:%S')}"
+            return response
+    else:
+        reminder_syntax_tip = 'Syntax: "reminder (some reminder) (in|at) (time)"'
+        return reminder_syntax_tip
 
-    _add_reminder(user_id,
-                  time,
-                  ctx.channel.id,
-                  clean_everyhere(reminder))
-    reminder_syntax_tip = 'Syntax: "remind (me|@user) (some reminder) (in|at) (time)"'
-    response = 'Reminder set.' if True else reminder_syntax_tip
-    return response
+
+def _is_utc(date):
+    return date.utcoffset().total_seconds() == 0
+
+
+def _get_reminder_date(timestring):
+    date = dateparser.parse(timestring, settings={'RETURN_AS_TIMEZONE_AWARE': True})
+    # set timezone to CST by default unless explicitly stated to be UTC
+    if 'UTC' not in timestring.upper() and _is_utc(date):
+        date = date.astimezone(pytz.timezone('US/Central'))
+    return date
 
 
 def _add_reminder(user_id, time, channel_id, reminder_message):
@@ -91,7 +114,7 @@ def _add_reminder(user_id, time, channel_id, reminder_message):
             discord_id,
             reminder_time,
             channel,
-            reminder_message) VALUES (?,datetime(?),?,?)'''
+            reminder_message) VALUES (?,?,?,?)'''
 
     c.execute(sql, (user_id, time, channel_id, reminder_message))
     conn.commit()
