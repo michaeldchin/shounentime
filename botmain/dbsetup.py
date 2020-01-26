@@ -1,9 +1,5 @@
 import sqlite3
-import re
 import time
-import pytz
-import dateparser
-from botmain.utils import clean_everyhere
 conn = sqlite3.connect('people.db')
 
 # Setup tables
@@ -66,52 +62,7 @@ def _people_increment(user_id, name):
     conn.commit()
 
 
-def add_reminder(ctx):
-    m = reminder_parse(ctx)
-    return m
-
-
-def reminder_parse(ctx):
-    content = ctx.message.content
-    captured = re.split(r'^.*?reminder (.*) (at .*$|in .*$)', content)
-    if len(captured) > 2:
-        reminder = captured[1]
-        timestring = captured[2]
-        date = _get_reminder_date(timestring)
-        if date.timestamp() < time.time():
-            return f"You're too late. Provided time {date.strftime('%m/%d/%Y, %I:%M%p %Z')} has already passed."
-        else:
-            timestamp = date.timestamp()
-            user_id = ctx.author.id
-            clean_reminder = clean_everyhere(reminder)
-            _add_reminder(user_id,
-                          timestamp,
-                          ctx.channel.id,
-                          clean_reminder)
-
-            response = f"You will be reminded '{clean_reminder}' at {date.strftime('%m/%d/%Y, %I:%M%p %Z')}"
-            return response
-    else:
-        reminder_syntax_tip = '''
-        **Failed to set reminder.**
-        Syntax: "reminder (some reminder) (in|at) (time)"
-        '''
-        return reminder_syntax_tip
-
-
-def _is_utc(date):
-    return date.utcoffset().total_seconds() == 0
-
-
-def _get_reminder_date(timestring):
-    date = dateparser.parse(timestring, settings={'TIMEZONE': 'CST', 'RETURN_AS_TIMEZONE_AWARE': True})
-    # set timezone to CST by default unless explicitly stated to be UTC
-    # if 'UTC' not in timestring.upper() and _is_utc(date):
-    #     date = pytz.timezone('US/Central').localize(date).dst()
-    return date
-
-
-def _add_reminder(user_id, time, channel_id, reminder_message):
+def insert_reminder(user_id, time, channel_id, reminder_message):
     sql = '''
         INSERT INTO reminders (
             discord_id,
@@ -124,6 +75,7 @@ def _add_reminder(user_id, time, channel_id, reminder_message):
 
 
 def query_reminders():
+    current_time = time.time()
     sql = '''
         SELECT
             discord_id,   
@@ -132,7 +84,6 @@ def query_reminders():
         FROM reminders 
         WHERE status = 'pending' AND reminder_time < ?
         '''
-    current_time = time.time()
     res = c.execute(sql, (current_time,)).fetchall()
 
     sql2 = '''

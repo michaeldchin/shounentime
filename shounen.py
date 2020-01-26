@@ -1,6 +1,7 @@
 import os
 from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_reminder_embed
-from botmain.dbsetup import people_increment, add_reminder, query_reminders
+from botmain.dbsetup import people_increment, query_reminders
+from botmain.reminders import add_reminder
 from discord.ext import commands
 import asyncio
 
@@ -32,10 +33,6 @@ async def check_reminders():
 
 @bot.event
 async def on_ready():
-    # c = bot.get_channel(600919318359703552)
-    # await c.send('extra testing <@143423784555118592> This is a full block: @\u200beveryone')
-    # await c.send('extra testing @ everyone @ here')
-    # await c.send('extra testing @everyone @here')
     print('We have logged in as {0.user}'.format(bot))
     bot.loop.create_task(check_reminders())
 
