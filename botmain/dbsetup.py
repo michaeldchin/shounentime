@@ -62,7 +62,7 @@ def _people_increment(user_id, name):
     conn.commit()
 
 
-def insert_reminder(user_id, time, channel_id, reminder_message):
+def insert_reminder(user_id, reminder_time, channel_id, reminder_message):
     sql = '''
         INSERT INTO reminders (
             discord_id,
@@ -70,13 +70,13 @@ def insert_reminder(user_id, time, channel_id, reminder_message):
             channel,
             reminder_message) VALUES (?,?,?,?)'''
 
-    c.execute(sql, (user_id, time, channel_id, reminder_message))
+    c.execute(sql, (user_id, reminder_time, channel_id, reminder_message))
     conn.commit()
 
 
 def query_reminders():
     current_time = time.time()
-    sql = '''
+    select_query = '''
         SELECT
             discord_id,   
             channel,  
@@ -84,13 +84,13 @@ def query_reminders():
         FROM reminders 
         WHERE status = 'pending' AND reminder_time < ?
         '''
-    res = c.execute(sql, (current_time,)).fetchall()
+    res = c.execute(select_query, (current_time,)).fetchall()
 
-    sql2 = '''
+    delete_query = '''
         DELETE FROM reminders 
         WHERE status = 'pending' AND reminder_time < ?
     '''
-    c.execute(sql2, (current_time,))
+    c.execute(delete_query, (current_time,))
 
     conn.commit()
     return res

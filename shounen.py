@@ -14,14 +14,14 @@ bot = commands.Bot(command_prefix=prefixes)
 
 async def send_reminders(data):
 
-    async def foo(datum):
+    async def send_reminder(datum):
         discord_id = datum[0]
         channel_id = datum[1]
         reminder_msg = datum[2]
         c = bot.get_channel(channel_id)
         await c.send(f'Reminder for <@{discord_id}> - {reminder_msg}')
     for x in data:
-        await foo(x)
+        await send_reminder(x)
 
 
 async def check_reminders():
