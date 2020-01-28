@@ -14,6 +14,6 @@ Shows how much time you have shounen
 
 ### Deployment
 
-sudo systemctl start shounentime.service
+```sudo systemctl start shounentime.service```
 
-sudo systemctl restart shounentime.service
+```sudo systemctl restart shounentime.service```

@@ -1,9 +1,8 @@
 import os
 from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_reminder_embed
-from botmain.dbsetup import people_increment, query_reminders
-from botmain.reminders import add_reminder
+from botmain.dbsetup import people_increment
+from botmain.reminders import add_reminder, check_reminders
 from discord.ext import commands
-import asyncio
 
 
 prefixes = ['shounen ', 'Shounen ']
@@ -12,29 +11,10 @@ if os.environ['DEV'] == 'true':
 bot = commands.Bot(command_prefix=prefixes)
 
 
-async def send_reminders(data):
-
-    async def send_reminder(datum):
-        discord_id = datum[0]
-        channel_id = datum[1]
-        reminder_msg = datum[2]
-        c = bot.get_channel(channel_id)
-        await c.send(f'Reminder for <@{discord_id}> - {reminder_msg}')
-    for x in data:
-        await send_reminder(x)
-
-
-async def check_reminders():
-    while True:
-        res = query_reminders()
-        await send_reminders(res)
-        await asyncio.sleep(8)
-
-
 @bot.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(bot))
-    bot.loop.create_task(check_reminders())
+    bot.loop.create_task(check_reminders(bot))
 
 
 @bot.command()

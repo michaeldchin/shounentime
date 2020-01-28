@@ -1,8 +1,28 @@
 import re
 import dateparser
 from botmain.utils import clean_everyhere
-from botmain.dbsetup import insert_reminder
+from botmain.dbsetup import insert_reminder, query_reminders
 import time
+import asyncio
+
+
+async def send_reminders(bot, data):
+
+    async def send_reminder(datum):
+        discord_id = datum[0]
+        channel_id = datum[1]
+        reminder_msg = datum[2]
+        c = bot.get_channel(channel_id)
+        await c.send(f'Reminder for <@{discord_id}> - {reminder_msg}')
+    for x in data:
+        await send_reminder(x)
+
+
+async def check_reminders(bot):
+    while True:
+        res = query_reminders()
+        await send_reminders(bot, res)
+        await asyncio.sleep(8)
 
 
 def add_reminder(ctx):
@@ -47,5 +67,4 @@ def _is_utc(date):
 
 
 def _get_reminder_date(timestring):
-    date = dateparser.parse(timestring, settings={'TIMEZONE': 'CST', 'RETURN_AS_TIMEZONE_AWARE': True})
-    return date
+    return dateparser.parse(timestring, settings={'TIMEZONE': 'CST', 'RETURN_AS_TIMEZONE_AWARE': True})
