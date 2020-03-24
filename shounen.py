@@ -1,7 +1,7 @@
 import os
 from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_reminder_embed
 from botmain.dbsetup import people_increment
-from botmain.reminders import add_reminder, check_reminders
+from botmain.reminders import add_reminder, check_reminders, show_user_reminders, clear_reminders
 from discord.ext import commands
 
 
@@ -38,5 +38,18 @@ async def time(ctx):
 async def reminder(ctx):
     content = add_reminder(ctx)
     await ctx.send(embed=get_reminder_embed(content))
+
+
+@bot.command()
+async def showreminders(ctx):
+    content = show_user_reminders(ctx)
+    await ctx.send(embed=get_reminder_embed(content))
+
+
+@bot.command()
+async def clearreminders(ctx):
+    content = clear_reminders(ctx)
+    await ctx.send(embed=get_reminder_embed(content))
+
 
 bot.run(os.environ['BOT_TOKEN'])

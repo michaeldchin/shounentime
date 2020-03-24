@@ -94,3 +94,25 @@ def query_reminders():
 
     conn.commit()
     return res
+
+
+def query_user_reminders(user_id):
+    select_query = '''
+        SELECT
+            reminder_time,
+            reminder_message
+        FROM reminders
+        WHERE status = 'pending' AND discord_id = ?
+        '''
+    res = c.execute(select_query, (user_id,)).fetchall()
+    return res
+
+
+def clear_user_reminders(user_id):
+    delete_query = '''
+        DELETE FROM reminders 
+        WHERE discord_id = ?
+        '''
+    res = c.execute(delete_query, (user_id,)).fetchall()
+    conn.commit()
+    return res

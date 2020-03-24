@@ -1,7 +1,8 @@
 import re
 import dateparser
+from datetime import datetime
 from botmain.utils import clean_everyhere
-from botmain.dbsetup import insert_reminder, query_reminders
+from botmain.dbsetup import insert_reminder, query_reminders, query_user_reminders, clear_user_reminders
 import time
 import asyncio
 
@@ -45,6 +46,26 @@ def process_reminder(ctx, reminder, time_string):
 
         response = f"You will be reminded '{clean_reminder}' at {date.strftime('%m/%d/%Y, %I:%M%p %Z')}"
         return response
+
+
+def show_user_reminders(ctx):
+    user_id = ctx.author.id
+    data = query_user_reminders(user_id)
+    if len(data) == 0:
+        return 'No upcoming reminders for this user.'
+    output = 'Reminders: \n'
+    for datum in data:
+        timestamp = datum[0]
+        message = datum[1]
+        datestring = datetime.fromtimestamp(timestamp).strftime('%m/%d/%Y, %I:%M%p %Z')
+        output += f"{message} at {datestring}\n"
+    return output
+
+
+def clear_reminders(ctx):
+    user_id = ctx.author.id
+    clear_user_reminders(user_id)
+    return 'Reminders cleared.'
 
 
 def reminder_parse(ctx):
