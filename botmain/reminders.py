@@ -1,5 +1,6 @@
 import re
 import dateparser
+import arrow
 from datetime import datetime
 from botmain.utils import clean_everyhere
 from botmain.dbsetup import insert_reminder, query_reminders, query_user_reminders, clear_user_reminders
@@ -78,7 +79,7 @@ def reminder_parse(ctx):
     else:
         reminder_syntax_tip = '''
         **Failed to set reminder.**
-        Syntax: "reminder (some reminder) (in|at) (time)"
+        Syntax: "reminder (some reminder) (in|at) (date|time)"
         '''
         return reminder_syntax_tip
 
@@ -88,4 +89,20 @@ def _is_utc(date):
 
 
 def _get_reminder_date(timestring):
+    # TODO: Currently returns CST-6 always. Want DST compatibility
     return dateparser.parse(timestring, settings={'TIMEZONE': 'CST', 'RETURN_AS_TIMEZONE_AWARE': True})
+
+
+def _debug_get_time():
+    testtime = dateparser.parse('10/20 at 5pm')
+    print(testtime)
+    print(arrow.get(testtime))
+    a = arrow.get(testtime).timestamp
+    b = arrow.now('US/Central').timestamp
+    c = time.time()
+    print(a)
+    # print(b)
+    # print(c)
+
+
+_debug_get_time()
