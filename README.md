@@ -1,6 +1,6 @@
 # shounentime
 
-###commands
+### Commands
 
 ```shounen help``` - Show shounenbot commands
 
