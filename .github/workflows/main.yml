@@ -20,4 +20,4 @@ jobs:
         username: ${{ secrets.DEPLOY_USER }}
         key : ${{ secrets.DEPLOY_SSH_KEY }}
         port : ${{ secrets.DEPLOY_PORT }}
-        script: whoami
+        script: touch afile
