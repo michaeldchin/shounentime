@@ -1,11 +1,10 @@
-from sqlalchemy import create_engine, Table, Column, Integer, String, Text, MetaData, select, insert, update
-from sqlalchemy.orm import registry, sessionmaker
+from sqlalchemy import create_engine,  Column, Integer, String, Text, select, insert, update
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 import time
 
-engine = create_engine('sqlite+pysqlite:///people.db', echo=True)
-
+engine = create_engine('sqlite+pysqlite:///people.db')
 Base = declarative_base()
 
 # Setup tables
@@ -28,6 +27,7 @@ Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind = engine)
 session = Session()
 
+# Operations
 def people_top():
     stmt = select(People.person_name, People.count).order_by(People.count.desc())
     results = list(session.execute(stmt).all())
