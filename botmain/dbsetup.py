@@ -1,47 +1,40 @@
-import sqlite3
+from sqlalchemy import create_engine, Table, Column, Integer, String, Text, MetaData, select, insert, update
+from sqlalchemy.orm import registry, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
 import time
-conn = sqlite3.connect('people.db')
+
+engine = create_engine('sqlite+pysqlite:///people.db', echo=True)
+
+Base = declarative_base()
 
 # Setup tables
-c = conn.cursor()
+class People(Base):
+    __tablename__ = 'people'
+    id = Column(Text, primary_key=True)
+    person_name = Column(Text)
+    count = Column(Integer, default=0)
 
-peopleSql = '''
-CREATE TABLE IF NOT EXISTS 
-people (
-    id TEXT, 
-    person_name TEXT, 
-    COUNT INTEGER DEFAULT 0, 
-    time TEXT
-)
-'''
-remindersSql = '''
-CREATE TABLE IF NOT EXISTS 
-reminders (
-    discord_id INTEGER, 
-    reminder_time INTEGER, 
-    status TEXT DEFAULT 'pending', 
-    channel INTEGER,
-    reminder_message TEXT
-)
-'''
-c.execute(peopleSql)
-# c.execute('DROP TABLE reminders')
-c.execute(remindersSql)
-# res = c.execute("select * from reminders")
-# res
-conn.commit()
+class Reminder(Base):
+    __tablename__ = 'reminders'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    discord_id = Column(Integer)
+    reminder_time = Column(Integer)
+    status = Column(Text, default='pending')
+    channel = Column(Integer)
+    reminder_message = Column(Text)
 
+Base.metadata.create_all(bind=engine)
+Session = sessionmaker(bind = engine)
+session = Session()
 
 def people_top():
-    results = list(c.execute('''SELECT person_name, count 
-                       FROM people ORDER BY count desc'''))
-    count = 1
+    stmt = select(People.person_name, People.count).order_by(People.count.desc())
+    results = list(session.execute(stmt).all())
     output = ''
-    for row in results:
-        row_string = f'{count}. **{row[0]}** - {row[1]}\n'
-        count = count + 1
+    for rank, row in enumerate(results):
+        row_string = f'{rank+1}. **{row[0]}** - {row[1]}\n'
         output = output + row_string
-
     return output
 
 
@@ -52,67 +45,43 @@ def people_increment(author):
 
 
 def _people_increment(user_id, name):
-    exists = c.execute('SELECT count(*) FROM people where id = ?', (user_id,)).fetchone()
-    if exists[0] == 0:
-        print('adding' + str((user_id, name)))
-        c.execute('INSERT INTO people (id, person_name, count) VALUES (?,?,?)', (user_id, name, 1))
+    person = session.query(People).filter(People.id == user_id).first()
+    if (person):
+        person.count += 1
     else:
-        print('incrementing' + str((user_id, name)))
-        c.execute('UPDATE people SET count = count + 1 where id = ?', (user_id,))
-    conn.commit()
+        session.add(People(id=user_id, person_name=name, count=1))
+    session.commit()
 
 
 def insert_reminder(user_id, reminder_time, channel_id, reminder_message):
-    sql = '''
-        INSERT INTO reminders (
-            discord_id,
-            reminder_time,
-            channel,
-            reminder_message) VALUES (?,?,?,?)'''
-
-    c.execute(sql, (user_id, reminder_time, channel_id, reminder_message))
-    conn.commit()
+    session.add(Reminder(
+        discord_id=user_id, 
+        reminder_time=reminder_time, 
+        channel=channel_id, 
+        reminder_message=reminder_message))
+    session.commit()
 
 
 def query_reminders():
     current_time = time.time()
-    select_query = '''
-        SELECT
-            discord_id,   
-            channel,  
-            reminder_message
-        FROM reminders 
-        WHERE status = 'pending' AND reminder_time < ?
-        '''
-    res = c.execute(select_query, (current_time,)).fetchall()
+    due_reminders = session.query(
+            Reminder.discord_id, 
+            Reminder.channel, 
+            Reminder.reminder_message) \
+        .filter(Reminder.reminder_time <= current_time) \
+        .filter(Reminder.status == 'pending').all()
 
-    delete_query = '''
-        DELETE FROM reminders 
-        WHERE status = 'pending' AND reminder_time < ?
-    '''
-    c.execute(delete_query, (current_time,))
-
-    conn.commit()
-    return res
+    session.query(Reminder).filter(Reminder.status == 'pending').filter(Reminder.reminder_time <= current_time).delete()
+    session.commit()
+    return due_reminders
 
 
 def query_user_reminders(user_id):
-    select_query = '''
-        SELECT
-            reminder_time,
-            reminder_message
-        FROM reminders
-        WHERE status = 'pending' AND discord_id = ?
-        '''
-    res = c.execute(select_query, (user_id,)).fetchall()
-    return res
+    reminders = session.query(Reminder.reminder_time, Reminder.reminder_message) \
+        .filter(Reminder.discord_id == user_id).all()
+    return reminders
 
 
 def clear_user_reminders(user_id):
-    delete_query = '''
-        DELETE FROM reminders 
-        WHERE discord_id = ?
-        '''
-    res = c.execute(delete_query, (user_id,)).fetchall()
-    conn.commit()
-    return res
+    session.query(Reminder).filter(Reminder.discord_id == user_id).delete()
+    session.commit()

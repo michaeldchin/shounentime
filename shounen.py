@@ -3,12 +3,12 @@ from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_r
 from botmain.dbsetup import people_increment
 from botmain.reminders import add_reminder, check_reminders, show_user_reminders, clear_reminders
 from discord.ext import commands
-
+import discord
+from datetime import datetime
 
 prefixes = ['shounen ', 'Shounen ']
-if os.environ['DEV'] == 'true':
-    prefixes = ['dev ']
-bot = commands.Bot(command_prefix=prefixes)
+activity = discord.Game(name=datetime.now())
+bot = commands.Bot(command_prefix=prefixes, activity=activity)
 
 
 @bot.event
