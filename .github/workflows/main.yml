@@ -23,4 +23,5 @@ jobs:
         script: |
           cd src/shounentime/
           git pull
-          sudo systemctl shounentime restart
+          pip3 install -r requirements.txt
+          sudo systemctl restart shounentime
