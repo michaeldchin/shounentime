@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine,  Column, Integer, String, Text, select, insert, update
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql.expression import func, select
 
 import time
 
@@ -22,6 +23,15 @@ class Reminder(Base):
     status = Column(Text, default='pending')
     channel = Column(Integer)
     reminder_message = Column(Text)
+
+class Bait(Base):
+    __tablename__ = 'bait'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String, default='Title')
+    description = Column(String, default='Description')
+    url = Column(String, default='https://cdn.discordapp.com/attachments/572464049179328532/572639933139779594/Shounen_Time.png')
+    message = Column(String)
+
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind = engine)
@@ -85,3 +95,25 @@ def query_user_reminders(user_id):
 def clear_user_reminders(user_id):
     session.query(Reminder).filter(Reminder.discord_id == user_id).delete()
     session.commit()
+
+
+def get_random_bait():
+    bait = session.query(
+        Bait.title,
+        Bait.description,
+        Bait.url,
+        Bait.message) \
+        .order_by(func.random()).first()
+    print(bait)
+    return bait
+
+
+def add_bait(title, description, url, message):
+    session.add(Bait(title=title, description=description, url=url, message=message))
+    session.commit()
+    return 'Bait added!'
+
+def clear_bait():
+    session.query(Bait).delete()
+    session.commit()
+    return 'Bait cleared!'

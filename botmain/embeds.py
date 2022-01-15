@@ -29,3 +29,10 @@ def get_reminder_embed(content):
     e = discord.Embed(color=0x007777)
     e.description = content
     return e
+
+
+def get_bait_embed(name, series, url):
+    series += '\nReact with any emoji to claim!'
+    e = discord.Embed(color=0xff8800, title=name, description=series)
+    e.set_image(url=url)
+    return e
