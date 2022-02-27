@@ -6,11 +6,11 @@ from botmain.reminders import add_reminder, check_reminders, show_user_reminders
 from discord.ext import commands
 import discord
 from datetime import datetime
+from botmain.utils import load_config
 
-prefixes = ['shounen ', 'Shounen ']
+config = load_config()
 activity = discord.Game(name=datetime.now())
-bot = commands.Bot(command_prefix=prefixes, activity=activity)
-
+bot = commands.Bot(command_prefix=config["prefixes"], activity=activity)
 
 @bot.event
 async def on_ready():
@@ -72,4 +72,4 @@ async def clearreminders(ctx):
     await ctx.send(embed=get_reminder_embed(content))
 
 
-bot.run(os.environ['BOT_TOKEN'])
+bot.run(config["token"])

@@ -1,3 +1,4 @@
 people.db
 people.db-journal
 __pycache__
+/config.json
