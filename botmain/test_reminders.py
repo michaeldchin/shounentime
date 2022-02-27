@@ -2,7 +2,7 @@ from botmain.reminders import *
 from unittest.mock import patch, MagicMock
 import unittest
 
-
+# TODO: Fix because i changed to SQLAlchemy 
 class TestReminders(unittest.TestCase):
 
     def test_process_reminder(self):

@@ -1,5 +1,5 @@
 import os
-from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_reminder_embed, get_bait_embed
+from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_default_embed, get_bait_embed
 from botmain.dbsetup import people_increment, get_random_bait, clear_bait
 from botmain.bait import parse_bait_message
 from botmain.reminders import add_reminder, check_reminders, show_user_reminders, clear_reminders
@@ -44,32 +44,32 @@ async def bait(ctx):
 
 @bot.command()
 async def addbait(ctx):
-    content = parse_bait_message(ctx)
-    await ctx.send(embed=get_reminder_embed(content))
+    description = parse_bait_message(ctx)
+    await ctx.send(embed=get_default_embed(description))
 
 
 @bot.command()
 async def clearbait(ctx):
-    content = clear_bait()
-    await ctx.send(embed=get_reminder_embed(content))
+    description = clear_bait()
+    await ctx.send(embed=get_default_embed(description))
 
 
 @bot.command()
 async def reminder(ctx):
-    content = add_reminder(ctx)
-    await ctx.send(embed=get_reminder_embed(content))
+    description = add_reminder(ctx)
+    await ctx.send(embed=get_default_embed(description))
 
 
 @bot.command()
 async def showreminders(ctx):
-    content = show_user_reminders(ctx)
-    await ctx.send(embed=get_reminder_embed(content))
+    description = show_user_reminders(ctx)
+    await ctx.send(embed=get_default_embed(description))
 
 
 @bot.command()
 async def clearreminders(ctx):
-    content = clear_reminders(ctx)
-    await ctx.send(embed=get_reminder_embed(content))
+    description = clear_reminders(ctx)
+    await ctx.send(embed=get_default_embed(description))
 
 
 bot.run(config["token"])

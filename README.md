@@ -27,3 +27,4 @@
 1. Better help documentation
 2. Alternative command names
 3. Unit testing
+    - `test_reminders.py` broken after adding SQL Alchemy

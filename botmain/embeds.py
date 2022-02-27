@@ -25,7 +25,7 @@ def get_time_embed():
     return e
 
 
-def get_reminder_embed(content):
+def get_default_embed(content):
     e = discord.Embed(color=0x007777)
     e.description = content
     return e
