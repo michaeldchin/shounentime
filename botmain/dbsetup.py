@@ -32,6 +32,19 @@ class Bait(Base):
     url = Column(String, default='https://cdn.discordapp.com/attachments/572464049179328532/572639933139779594/Shounen_Time.png')
     message = Column(String)
 
+class Quote(Base):
+    __tablename__ = 'quotes'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    quote = Column(Text)
+    author = Column(Text)
+    guild_id = Column(Integer, default=None)
+
+class Image(Base):
+    __tablename__ = 'images'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    url = Column(String)
+    guild_id = Column(Integer, default=None)
+
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind = engine)
@@ -117,3 +130,15 @@ def clear_bait():
     session.query(Bait).delete()
     session.commit()
     return 'Bait cleared!'
+
+
+def add_quote(quote, author, guild_id=None):
+    session.add(Quote(quote=quote, author=author, guild_id=guild_id))
+    session.commit()
+    return 'quote added!'
+
+def get_quote(id, guild_id=None):
+    quote = session.query(Quote.quote, Quote.author) \
+        .filter(guild_id is not None and Quote.guild_id == guild_id) \
+        .filter(Quote.id == id).first()
+    return quote
