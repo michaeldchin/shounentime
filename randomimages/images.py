@@ -1,10 +1,25 @@
 import csv
 import botmain.dbsetup as dbsetup
 
+if (not dbsetup.get_image()):
+    print('first time load image')
+    with open('randomimages/images.csv', 'r') as f:
+        reader = csv.reader(f)
+        images = list(reader)
+        for image in images:
+            dbsetup.add_image(image[0])
+else:
+    print('loaded images')
 
-with open('randomimages/images.csv', 'r') as f:
-    reader = csv.reader(f)
-    images = list(reader)
+if (not dbsetup.get_quote()):
+    print('first time load quotes')
+    with open('randomimages/quotes.csv', 'r') as f:
+        reader = csv.reader(f)
+        quotes = list(reader)
+        for quote in quotes:
+            dbsetup.add_quote(quote[0],quote[1])
+else: 
+    print('loaded quotes')
 
 
 def _format_quote(quote_list):

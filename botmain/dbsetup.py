@@ -138,7 +138,10 @@ def clear_bait():
 
 ### Quotes ###
 def add_quote(quote, author, guild_id=None):
-    session.add(Quote(quote=quote, author=author, guild_id=guild_id))
+    if guild_id:
+        session.add(Quote(quote=quote, author=author, guild_id=guild_id))
+    else:
+        session.add(Quote(quote=quote, author=author))
     session.commit()
     return 'quote added!'
 
@@ -155,7 +158,10 @@ def get_quote(id=None, guild_id=None):
 
 ### Images ###
 def add_image(url, guild_id=None):
-    session.add(Image(url, guild_id=guild_id))
+    if guild_id:
+        session.add(Image(url=url, guild_id=guild_id))
+    else:
+        session.add(Image(url=url))
     session.commit()
     return 'Image added!'
 
