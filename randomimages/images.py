@@ -1,10 +1,5 @@
-import random
 import csv
-
-
-with open('randomimages/quotes.csv', 'r') as f:
-    reader = csv.reader(f)
-    quotes = list(reader)
+import botmain.dbsetup as dbsetup
 
 
 with open('randomimages/images.csv', 'r') as f:
@@ -13,17 +8,24 @@ with open('randomimages/images.csv', 'r') as f:
 
 
 def _format_quote(quote_list):
+    if not quote_list:
+        return ''
     quote = quote_list[0]
     author = quote_list[1]
     return f"« {quote} » {author}"
 
 
-def random_quote():
-    rand_num = random.randint(0, len(quotes) - 1)
-    return _format_quote(quotes[rand_num])
+def handle_image(ctx, quote_id, image_id):
+    if quote_id == 'random':
+        quoteData = dbsetup.get_quote(guild_id=ctx.guild.id)
+    else:
+        quoteData = dbsetup.get_quote(quote_id, guild_id=ctx.guild.id)
+    quote = _format_quote(quoteData)
 
+    image_result = dbsetup.get_image(image_id, guild_id=ctx.guild.id)
+    if not image_result:
+        image_url = 'https://i.kym-cdn.com/photos/images/original/002/113/379/aee.jpeg'
+    else:
+        image_url = image_result[0]
 
-def random_img():
-    rand_num = random.randint(0, len(images) - 1)
-    return images[rand_num]
-
+    return quote, image_url

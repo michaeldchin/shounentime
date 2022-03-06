@@ -1,12 +1,10 @@
 import discord
-from randomimages.images import random_quote, random_img
 from botmain.dbsetup import people_top
 
 
-def get_image_embed():
-    e = discord.Embed(color=0x777777, description=random_quote())
-    url = random_img()
-    e.set_image(url=url[0])
+def get_image_embed(quote=None, image_url=None):
+    e = discord.Embed(color=0x777777, description=quote)
+    e.set_image(url=image_url)
     return e
 
 

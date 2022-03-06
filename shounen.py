@@ -1,8 +1,9 @@
 import os
 from botmain.embeds import get_image_embed, get_top_embed, get_time_embed, get_default_embed, get_bait_embed
-from botmain.dbsetup import people_increment, get_random_bait, clear_bait
+import botmain.dbsetup as dbsetup
 from botmain.bait import parse_bait_message
 from botmain.reminders import add_reminder, check_reminders, show_user_reminders, clear_reminders
+import randomimages.images as images
 from discord.ext import commands
 import discord
 from datetime import datetime
@@ -19,9 +20,10 @@ async def on_ready():
 
 
 @bot.command()
-async def image(ctx):
-    people_increment(ctx.author)
-    await ctx.send(embed=get_image_embed())
+async def image(ctx, quote_id=None, image_id=None):
+    dbsetup.people_increment(ctx.author)
+    quote, image_url = images.handle_image(ctx, quote_id, image_id)
+    await ctx.send(embed=get_image_embed(quote, image_url))
 
 
 @bot.command()
@@ -31,14 +33,14 @@ async def top(ctx):
 
 @bot.command()
 async def time(ctx):
-    people_increment(ctx.author)
+    dbsetup.people_increment(ctx.author)
     await ctx.send(embed=get_time_embed())
 
 
 @bot.command()
 async def bait(ctx):
-    people_increment(ctx.author)
-    title, description, url, message = get_random_bait()
+    dbsetup.people_increment(ctx.author)
+    title, description, url, message = dbsetup.get_random_bait()
     await ctx.send(content=message, embed=get_bait_embed(title, description, url))
 
 
@@ -50,7 +52,7 @@ async def addbait(ctx):
 
 @bot.command()
 async def clearbait(ctx):
-    description = clear_bait()
+    description = dbsetup.clear_bait()
     await ctx.send(embed=get_default_embed(description))
 
 

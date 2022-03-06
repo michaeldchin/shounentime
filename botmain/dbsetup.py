@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine,  Column, Integer, String, Text, select, insert, update
+from sqlalchemy import create_engine,  Column, Integer, String, Text, Date, select, insert, update
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import func, select
 
 import time
+import datetime
 
 engine = create_engine('sqlite+pysqlite:///people.db')
 Base = declarative_base()
@@ -35,22 +36,24 @@ class Bait(Base):
 class Quote(Base):
     __tablename__ = 'quotes'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    quote = Column(Text)
+    quote = Column(Text, unique=True)
     author = Column(Text)
     guild_id = Column(Integer, default=None)
+    created_at = Column(Date, default=datetime.datetime.now())
 
 class Image(Base):
     __tablename__ = 'images'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    url = Column(String)
+    url = Column(String, unique=True)
     guild_id = Column(Integer, default=None)
+    created_at = Column(Date, default=datetime.datetime.now())
 
 
 Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind = engine)
 session = Session()
 
-# Operations
+### People ###
 def people_top():
     stmt = select(People.person_name, People.count).order_by(People.count.desc())
     results = list(session.execute(stmt).all())
@@ -75,7 +78,7 @@ def _people_increment(user_id, name):
         session.add(People(id=user_id, person_name=name, count=1))
     session.commit()
 
-
+### Reminders ###
 def insert_reminder(user_id, reminder_time, channel_id, reminder_message):
     session.add(Reminder(
         discord_id=user_id, 
@@ -110,6 +113,7 @@ def clear_user_reminders(user_id):
     session.commit()
 
 
+### Bait ###
 def get_random_bait():
     bait = session.query(
         Bait.title,
@@ -132,13 +136,36 @@ def clear_bait():
     return 'Bait cleared!'
 
 
+### Quotes ###
 def add_quote(quote, author, guild_id=None):
     session.add(Quote(quote=quote, author=author, guild_id=guild_id))
     session.commit()
     return 'quote added!'
 
-def get_quote(id, guild_id=None):
-    quote = session.query(Quote.quote, Quote.author) \
-        .filter(guild_id is not None and Quote.guild_id == guild_id) \
-        .filter(Quote.id == id).first()
+def get_quote(id=None, guild_id=None):
+    if id: 
+        quote = session.query(Quote.quote, Quote.author) \
+            .filter((Quote.guild_id == None) | (Quote.guild_id == guild_id)) \
+            .filter(Quote.id == id).first()
+    else:
+        quote = session.query(Quote.quote, Quote.author) \
+            .order_by(func.random()).first()
     return quote
+
+
+### Images ###
+def add_image(url, guild_id=None):
+    session.add(Image(url, guild_id=guild_id))
+    session.commit()
+    return 'Image added!'
+
+def get_image(id=None, guild_id=None):
+    if id: 
+        url = session.query(Image.url) \
+            .filter((Image.guild_id == None) | (Image.guild_id == guild_id)) \
+            .filter(Image.id == id).first()
+    else:
+        url = session.query(Image.url) \
+            .filter((Image.guild_id == None) | (Image.guild_id == guild_id)) \
+            .order_by(func.random()).first()
+    return url
