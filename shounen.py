@@ -41,6 +41,13 @@ async def quoteadd(ctx, quote, author=''):
 
 
 @bot.command()
+async def imageshowcustom(ctx):
+    dbsetup.people_increment(ctx.author)
+    response = images.show_custom(ctx)
+    await ctx.send(embed=get_default_embed(response))
+
+
+@bot.command()
 async def top(ctx):
     await ctx.send(embed=get_top_embed())
 

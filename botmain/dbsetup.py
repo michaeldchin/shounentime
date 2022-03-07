@@ -181,3 +181,7 @@ def get_image(id=None, guild_id=None):
             .filter((Image.guild_id == None) | (Image.guild_id == guild_id)) \
             .order_by(func.random()).first()
     return url
+
+
+def list_images(guild_id=None):
+    return session.query(Image.id, Image.url, Image.guild_id).filter(Image.guild_id == guild_id).all()

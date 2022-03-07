@@ -50,3 +50,10 @@ def add_image(ctx, url):
 
 def add_quote(ctx, quote, author=''):
     return dbsetup.add_quote(quote, author, guild_id=ctx.guild.id)
+
+def show_custom(ctx):
+    image_list = dbsetup.list_images(guild_id=ctx.guild.id)
+    result = ''
+    for entry in image_list:
+        result += f"{entry[0]}: {entry[1]}\n"
+    return result
