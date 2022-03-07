@@ -138,12 +138,15 @@ def clear_bait():
 
 ### Quotes ###
 def add_quote(quote, author, guild_id=None):
+    quote_already_exists = session.query(Quote.id, Quote.quote, Quote.author, Quote.guild_id).filter(Quote.quote == quote).first()
+    if quote_already_exists:
+        return 'ERROR: Quote already exists! \n' + str(quote_already_exists)
     if guild_id:
         session.add(Quote(quote=quote, author=author, guild_id=guild_id))
     else:
         session.add(Quote(quote=quote, author=author))
     session.commit()
-    return 'quote added!'
+    return 'quote added! \n' + str(session.query(Quote.id, Quote.quote, Quote.author, Quote.guild_id).filter(Quote.quote == quote).first())
 
 def get_quote(id=None, guild_id=None):
     if id: 
@@ -158,12 +161,15 @@ def get_quote(id=None, guild_id=None):
 
 ### Images ###
 def add_image(url, guild_id=None):
+    img_already_exists = session.query(Image.id, Image.url, Image.guild_id).filter(Image.url == url).first()
+    if img_already_exists:
+        return 'ERROR: Image already exists! \n' + str(img_already_exists)
     if guild_id:
         session.add(Image(url=url, guild_id=guild_id))
     else:
         session.add(Image(url=url))
     session.commit()
-    return 'Image added!'
+    return 'Image added! ' + str(session.query(Image.id, Image.url, Image.guild_id).filter(Image.url == url).first())
 
 def get_image(id=None, guild_id=None):
     if id: 

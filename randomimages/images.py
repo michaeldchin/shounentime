@@ -44,3 +44,9 @@ def handle_image(ctx, quote_id, image_id):
         image_url = image_result[0]
 
     return quote, image_url
+
+def add_image(ctx, url):
+    return dbsetup.add_image(url, guild_id=ctx.guild.id)
+
+def add_quote(ctx, quote, author=''):
+    return dbsetup.add_quote(quote, author, guild_id=ctx.guild.id)
