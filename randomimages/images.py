@@ -15,11 +15,11 @@ def handle_image(ctx, quote_id, image_id):
         quoteData = dbsetup.get_quote(quote_id, guild_id=ctx.guild.id)
     quote = _format_quote(quoteData)
 
-    if image_id == 'random':
+    if image_id == 'custom':
         image_result = dbsetup.get_guild_image(guild_id=ctx.guild.id)
     else:
         image_result = dbsetup.get_image(image_id, guild_id=ctx.guild.id)
-        
+
     if not image_result:
         image_url = 'https://i.kym-cdn.com/photos/images/original/002/113/379/aee.jpeg'
     else:
