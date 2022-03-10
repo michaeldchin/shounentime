@@ -1,26 +1,4 @@
-import csv
 import botmain.dbsetup as dbsetup
-
-if (not dbsetup.get_image()):
-    print('first time load image')
-    with open('randomimages/images.csv', 'r') as f:
-        reader = csv.reader(f)
-        images = list(reader)
-        for image in images:
-            dbsetup.add_image(image[0])
-else:
-    print('loaded images')
-
-if (not dbsetup.get_quote()):
-    print('first time load quotes')
-    with open('randomimages/quotes.csv', 'r') as f:
-        reader = csv.reader(f)
-        quotes = list(reader)
-        for quote in quotes:
-            dbsetup.add_quote(quote[0],quote[1])
-else: 
-    print('loaded quotes')
-
 
 def _format_quote(quote_list):
     if not quote_list:
@@ -37,7 +15,11 @@ def handle_image(ctx, quote_id, image_id):
         quoteData = dbsetup.get_quote(quote_id, guild_id=ctx.guild.id)
     quote = _format_quote(quoteData)
 
-    image_result = dbsetup.get_image(image_id, guild_id=ctx.guild.id)
+    if image_id == 'random':
+        image_result = dbsetup.get_guild_image(guild_id=ctx.guild.id)
+    else:
+        image_result = dbsetup.get_image(image_id, guild_id=ctx.guild.id)
+        
     if not image_result:
         image_url = 'https://i.kym-cdn.com/photos/images/original/002/113/379/aee.jpeg'
     else:
