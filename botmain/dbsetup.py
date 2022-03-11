@@ -39,14 +39,14 @@ class Quote(Base):
     quote = Column(Text, unique=True)
     author = Column(Text)
     guild_id = Column(Integer, default=None)
-    created_at = Column(Date, default=datetime.datetime.now())
+    created_at = Column(Date, default=func.now())
 
 class Image(Base):
     __tablename__ = 'images'
     id = Column(Integer, primary_key=True, autoincrement=True)
     url = Column(String, unique=True)
     guild_id = Column(Integer, default=None)
-    created_at = Column(Date, default=datetime.datetime.now())
+    created_at = Column(Date, default=func.now())
 
 
 Base.metadata.create_all(bind=engine)
