@@ -4,7 +4,7 @@ def _format_quote(quote_list):
     if not quote_list:
         return ''
     quote = quote_list[0]
-    author = quote_list[1]
+    author = quote_list[1] if quote_list[1] else ''
     return f"« {quote} » {author}"
 
 
