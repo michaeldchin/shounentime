@@ -27,11 +27,19 @@ def handle_image(ctx, quote_id, image_id):
 
     return quote, image_url
 
-def add_image(ctx, url):
-    return dbsetup.add_image(url, guild_id=ctx.guild.id)
+def add_image(ctx, url, flag):
+    if flag == 'global':
+        guild_id = None
+    else:
+        guild_id = ctx.guild.id
+    return dbsetup.add_image(url, guild_id)
 
-def add_quote(ctx, quote, author=''):
-    return dbsetup.add_quote(quote, author, guild_id=ctx.guild.id)
+def add_quote(ctx, quote, author, flag):
+    if flag == 'global':
+        guild_id = None
+    else:
+        guild_id = ctx.guild.id
+    return dbsetup.add_quote(quote, author, guild_id)
 
 def show_custom(ctx):
     image_list = dbsetup.list_images(guild_id=ctx.guild.id)

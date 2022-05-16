@@ -27,16 +27,16 @@ async def image(ctx, quote_id=None, image_id=None):
 
 
 @bot.command()
-async def imageadd(ctx, url):
+async def imageadd(ctx, url, flag=None):
     dbsetup.people_increment(ctx.author)
-    response = images.add_image(ctx, url)
+    response = images.add_image(ctx, url, flag)
     await ctx.send(embed=get_default_embed(response))
 
 
 @bot.command()
-async def quoteadd(ctx, quote, author=''):
+async def quoteadd(ctx, quote, author='', flag=None):
     dbsetup.people_increment(ctx.author)
-    response = images.add_quote(ctx, quote, author)
+    response = images.add_quote(ctx, quote, author, flag)
     await ctx.send(embed=get_default_embed(response))
 
 
